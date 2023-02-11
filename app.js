@@ -10,8 +10,11 @@ const express = require('express'),
     { randomDigit } = require('./src/utils/random')
 const { IncomingMessage } = require('http')
 
+const swaggerUI = require('swagger-ui-express')
+require('./src/database')
+
 // Handle Uncaught Exception
-process.on('uncaughtException', (error) => logger.error(error.stack || error.message));
+process.on('uncaughtException', (error) => logger.error(error?.stack || error?.message));
 
 // Set Request ID and Time
 app.use((req, res, next) => {
@@ -30,10 +33,6 @@ app.use(express.urlencoded({ extended: true }), express.json(), (error, _, res, 
     }
     next()
 })
-
-// Multipart form data parser. Remove this , If you want to use multer
-// const multipartParser = require('express-fileupload')
-// app.use(multipartParser())
 
 // Cookie Parser
 app.use(require('cookie-parser')())
@@ -69,16 +68,11 @@ Path: ${req.path} | Method: ${req.method} ${headerLog} ${cookieLog} ${queryLog} 
     }
 })
 
-// To Use Service from All Services
-// const { bcryptjs } = require('./src/services') // Go To file for Enable/Disable Service
-
-// To Use Particular Service
-// const jwt = require('./src/services/jwt')
-
 // App Health Check
 app.get(healthCheckPaths, (req, res) => response(res, httpStatus.OK, 'Health: OK', {
     message: 'Health: OK',
     app: packageInfo.name,
+    NODE_ENV: process.env.NODE_ENV,
     version: packageInfo.version,
     description: packageInfo.description,
     author: packageInfo.author,
@@ -87,6 +81,10 @@ app.get(healthCheckPaths, (req, res) => response(res, httpStatus.OK, 'Health: OK
     repository: packageInfo.repository,
     contributors: packageInfo.contributors
 }, '#ExpressForsterHealthCheck', { project: 'Express-Forster', health_check_paths: healthCheckPaths }))
+
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(require('yamljs').load('./src/documentation/swagger.yaml')))
+app.use('/', require('./src/routes'))
 
 app.use((req, res) => { return response(res, httpStatus.NOT_FOUND, 'The request route does not exist or the method might be different.') })
 

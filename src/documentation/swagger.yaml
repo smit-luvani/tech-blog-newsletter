@@ -1,0 +1,89 @@
+openapi: 3.0.3
+info:
+  title: Tech Blog Newsletter APIs
+  version: 1.0.0
+servers:
+  - url: http://localhost
+tags:
+  - name: Subscription
+    description: Subscribe for newsletter
+paths:
+  # subscribe /public/su
+  /public/newsletter/subscribe:
+    post:
+      tags:
+        - Subscription
+      summary: Subscribe for newsletter
+      description: Allow user to subscribe for newsletter without authentication
+      requestBody:
+        description: Update an existent pet in the store
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - subscriber_name
+                - frequency
+                - country
+              properties:
+                email:
+                  type: string
+                  description: Email address of the subscriber
+                subscriber_name:
+                  type: string
+                  description: Name of the subscriber
+                frequency:
+                  type: string
+                  description: Frequency of the newsletter
+                country:
+                  type: string
+                  description: Country of the subscriber
+        required: true
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Response'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Response'
+  
+  /admin/newsletter/get:
+    get:
+      tags:
+        - Subscription
+      summary: Get all subscribers
+      description: Allow admin to get all subscribers
+      responses:
+        '200': 
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Response'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schema/Response'
+components:
+  schema:
+    Response:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the request
+        message:
+          type: string
+          description: Message of the request
+        data:
+          type: object
+          description: Data of the request
